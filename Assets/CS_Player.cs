@@ -60,15 +60,15 @@ public class CS_Player : NetworkBehaviour
     [ClientRpc]
     void Rpc_GetACard(GameObject go, string id)
     {
-        go.GetComponent<CS_Card>().SetCover(id);
-        Debug.LogError(id);
-
         if (isOwned)
         {
+            go.GetComponent<CS_Card>().SetCover(id);
             HoldCardAreaLeft.GetComponentInChildren<CS_HoldCardAreaSlot>().InsertACard(go);
         }
         else
         {
+            go.GetComponent<CS_Card>().SetCover(id);
+            go.GetComponent<CS_Card>().SetCover("0");
             HoldCardAreaRight.GetComponentInChildren<CS_HoldCardAreaSlot>().InsertACard(go);
         }
     }

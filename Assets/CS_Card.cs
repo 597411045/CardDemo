@@ -26,8 +26,11 @@ public class CS_Card : NetworkBehaviour
     {
         if (image != null)
         {
-            CardId = id;
-            image.sprite = Resources.Load<Sprite>("Cards/" + CardId);
+            if (id != "0")
+            {
+                CardId = id;
+            }
+            image.sprite = Resources.Load<Sprite>("Cards/" + id);
         }
     }
 
