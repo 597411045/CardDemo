@@ -100,7 +100,7 @@ public class CS_Player : NetworkBehaviour
             foreach (var i in area.GetComponentsInChildren<Transform>())
             {
                 if (i.gameObject.name == tmp)
-                {   
+                {
                     parent = i.gameObject;
                     break;
                 }
@@ -115,5 +115,30 @@ public class CS_Player : NetworkBehaviour
                 }
             }
         }
+    }
+
+    [Command]
+    public void ClickOnOwned(GameObject card)
+    {
+        Rpc_ClickOnOwned(localPlayer.GetComponent<NetworkIdentity>(), card);
+    }
+
+    [Command]
+    public void ClickOnOther(GameObject card)
+    {
+        Rpc_ClickOnOther(localPlayer.GetComponent<NetworkIdentity>(), card);
+    }
+
+    [TargetRpc]
+    public void Rpc_ClickOnOwned(NetworkIdentity id, GameObject card)
+    {
+        Debug.LogError(id.GetComponent<CS_Player>().name + " Clicked " + card.GetComponent<CS_Card>().CardId + ", he owned");
+    }
+
+    [TargetRpc]
+    public void Rpc_ClickOnOther(NetworkIdentity id, GameObject card)
+    {
+        Debug.LogError(id.GetComponent<CS_Player>().name + " Clicked " + card.GetComponent<CS_Card>().CardId + ", he not owned");
+
     }
 }

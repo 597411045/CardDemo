@@ -7,7 +7,8 @@ using UnityEngine.UI;
 
 public class CS_Card : NetworkBehaviour
 {
-    private string CardId;
+    public string CardId;
+    private string CoverId;
     private Image image;
     private bool isDraging;
 
@@ -15,22 +16,47 @@ public class CS_Card : NetworkBehaviour
     private GameObject lastParent;
     private Vector3 lastPosition;
 
+    public static GameObject ZoomCard;
+    public static GameObject GlobalLU;
+    public static GameObject GlobalRD;
+    public GameObject LU;
+    public GameObject RD;
+
+
     // Start is called before the first frame update
     void Awake()
     {
         image = this.GetComponent<Image>();
         hits = new List<RaycastResult>();
+
+        if (ZoomCard == null)
+        {
+            ZoomCard = GameObject.Find("ZoomCard");
+        }
+        if (GlobalLU == null)
+        {
+            GlobalLU = GameObject.Find("GlobalLU");
+        }
+        if (GlobalRD == null)
+        {
+            GlobalRD = GameObject.Find("GlobalRD");
+        }
     }
 
     public void SetCover(string id)
     {
         if (image != null)
         {
-            if (id != "0")
+            if (id == "0")
+            {
+                CoverId = id;
+                image.sprite = Resources.Load<Sprite>("Cards/" + id);
+            }
+            else
             {
                 CardId = id;
+                image.sprite = Resources.Load<Sprite>("Cards/" + id);
             }
-            image.sprite = Resources.Load<Sprite>("Cards/" + id);
         }
     }
 
@@ -46,6 +72,7 @@ public class CS_Card : NetworkBehaviour
     public void BeginDrag()
     {
         if (!isOwned) return;
+        EndHover();
 
         isDraging = true;
         lastParent = this.transform.parent.gameObject;
@@ -96,6 +123,57 @@ public class CS_Card : NetworkBehaviour
 
                 return;
             }
+        }
+    }
+
+    public void OnHover()
+    {
+        if (ZoomCard == null) return;
+        if (isDraging) return;
+        if (CoverId == "0") return;
+
+        ZoomCard.GetComponent<Image>().enabled = true;
+        ZoomCard.GetComponent<CS_Card>().SetCover(CardId);
+        ZoomCard.transform.position = this.transform.position;
+
+        Vector3 deltaLU = GlobalLU.transform.position - ZoomCard.GetComponent<CS_Card>().LU.transform.position;
+        Vector3 deltaRD = GlobalRD.transform.position - ZoomCard.GetComponent<CS_Card>().RD.transform.position;
+
+        if (deltaLU.x > 0)
+        {
+            ZoomCard.transform.position += new Vector3(deltaLU.x, 0, 0);
+        }
+        if (deltaLU.y < 0)
+        {
+            ZoomCard.transform.position += new Vector3(0, deltaLU.y, 0);
+        }
+        if (deltaRD.x < 0)
+        {
+            ZoomCard.transform.position += new Vector3(deltaRD.x, 0, 0);
+        }
+        if (deltaRD.y > 0)
+        {
+            ZoomCard.transform.position += new Vector3(0, deltaRD.y, 0);
+        }
+
+    }
+
+    public void EndHover()
+    {
+        if (ZoomCard == null) return;
+
+        ZoomCard.GetComponent<Image>().enabled = false;
+    }
+
+    public void OnClick()
+    {
+        if (isOwned)
+        {
+            CS_Player.localPlayer.ClickOnOwned(this.gameObject);
+        }
+        else
+        {
+            CS_Player.localPlayer.ClickOnOther(this.gameObject);
         }
     }
 }
