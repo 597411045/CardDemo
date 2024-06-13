@@ -13,8 +13,8 @@ public class CS_Player : NetworkBehaviour
     public GameObject HoldCardAreaLeft;
     public GameObject HoldCardAreaRight;
 
-    public string name;
-    public static CS_Player localPlayer;
+    public string userId;
+
 
     private void Awake()
     {
@@ -28,23 +28,27 @@ public class CS_Player : NetworkBehaviour
 
     private void Start()
     {
-        NetworkIdentity ni = NetworkClient.connection.identity;
-        localPlayer = ni.GetComponent<CS_Player>();
-        Debug.LogError(localPlayer.name);
+        if (!isServer)
+        {
+            NetworkIdentity ni = NetworkClient.connection.identity;
+            CS_GameMode.localPlayer = ni.gameObject;
+        }
     }
 
     public override void OnStartClient()
     {
         base.OnStartClient();
 
-        name += "Client";
+        if (!isServer)
+        {
+            RegisterAClient(this.gameObject);
+        }
     }
 
     [Server]
     public override void OnStartServer()
     {
         base.OnStartServer();
-        name += "Server";
     }
 
     [Command]
@@ -64,6 +68,8 @@ public class CS_Player : NetworkBehaviour
         {
             go.GetComponent<CS_Card>().SetCover(id);
             HoldCardAreaLeft.GetComponentInChildren<CS_HoldCardAreaSlot>().InsertACard(go);
+
+            Cmd_SwitchTurn(CS_GameMode.localPlayer, CS_GameMode.remotePlayer);
         }
         else
         {
@@ -71,6 +77,8 @@ public class CS_Player : NetworkBehaviour
             go.GetComponent<CS_Card>().SetCover("0");
             HoldCardAreaRight.GetComponentInChildren<CS_HoldCardAreaSlot>().InsertACard(go);
         }
+
+
     }
 
     [Command]
@@ -89,6 +97,7 @@ public class CS_Player : NetworkBehaviour
                 if (j is ISlotActiviy)
                 {
                     ((ISlotActiviy)j).InsertACard(go);
+                    Cmd_SwitchTurn(CS_GameMode.localPlayer, CS_GameMode.remotePlayer);
                     return;
                 }
             }
@@ -120,25 +129,111 @@ public class CS_Player : NetworkBehaviour
     [Command]
     public void ClickOnOwned(GameObject card)
     {
-        Rpc_ClickOnOwned(localPlayer.GetComponent<NetworkIdentity>(), card);
+        Rpc_ClickOnOwned(card.GetComponent<NetworkIdentity>().connectionToClient, card);
     }
+
+
 
     [Command]
     public void ClickOnOther(GameObject card)
     {
-        Rpc_ClickOnOther(localPlayer.GetComponent<NetworkIdentity>(), card);
+        Rpc_ClickOnOther(card.GetComponent<NetworkIdentity>().connectionToClient, card);
     }
 
     [TargetRpc]
-    public void Rpc_ClickOnOwned(NetworkIdentity id, GameObject card)
+    public void Rpc_ClickOnOwned(NetworkConnection conn, GameObject card)
     {
-        Debug.LogError(id.GetComponent<CS_Player>().name + " Clicked " + card.GetComponent<CS_Card>().CardId + ", he owned");
+        //Debug.LogError(conn.identity.GetComponent<CS_Player>().name + " Clicked " + card.GetComponent<CS_Card>().CardId + ", he owned");
+        Debug.LogError("Rpc_ClickOnOwned");
     }
 
     [TargetRpc]
-    public void Rpc_ClickOnOther(NetworkIdentity id, GameObject card)
+    public void Rpc_ClickOnOther(NetworkConnection conn, GameObject card)
     {
-        Debug.LogError(id.GetComponent<CS_Player>().name + " Clicked " + card.GetComponent<CS_Card>().CardId + ", he not owned");
-
+        //Debug.LogError(conn.identity.GetComponent<CS_Player>().name + " Clicked " + card.GetComponent<CS_Card>().CardId + ", he not owned");
+        Debug.LogError("Rpc_ClickOnOwned");
     }
+
+    [Command]
+    public void Cmd_AddOne()
+    {
+        GameObject.Find("GameMode").GetComponent<CS_GameMode>().ClickCount++;
+    }
+
+    [Command]
+    public void RegisterAClient(GameObject go)
+    {
+        if (CS_GameMode.Player1 == null)
+        {
+            CS_GameMode.Player1 = go;
+            BroadCastNotify("Player 1 In");
+
+            BroadCastClient(1, CS_GameMode.Player1);
+            return;
+        }
+        if (CS_GameMode.Player2 == null)
+        {
+            CS_GameMode.Player2 = go;
+            BroadCastNotify("Player 2 In");
+
+            BroadCastClient(2, CS_GameMode.Player2);
+            BroadCastClient(1, CS_GameMode.Player1);
+            Rpc_StartTurn(CS_GameMode.Player1.GetComponent<NetworkIdentity>().connectionToClient);
+            Rpc_WaitTurn(CS_GameMode.Player2.GetComponent<NetworkIdentity>().connectionToClient);
+            return;
+        }
+    }
+
+    [ClientRpc]
+    public void BroadCastNotify(string s)
+    {
+        Debug.LogError(s);
+    }
+
+
+    [ClientRpc]
+    public void BroadCastClient(int index, GameObject go)
+    {
+        if (index == 1)
+        {
+            if (CS_GameMode.Player1 == null)
+            {
+                CS_GameMode.remotePlayer = go;
+                CS_GameMode.Player1 = go;
+            }
+        }
+        if (index == 2)
+        {
+            if (CS_GameMode.Player2 == null)
+            {
+                CS_GameMode.remotePlayer = go;
+                CS_GameMode.Player2 = go;
+            }
+        }
+    }
+
+    [TargetRpc]
+    public void Rpc_StartTurn(NetworkConnection conn)
+    {
+        //Debug.LogError(conn.identity.GetComponent<CS_Player>().name + " Clicked " + card.GetComponent<CS_Card>().CardId + ", he not owned");
+        Debug.LogError("Your Trun");
+        GameObject.Find("AllHover").GetComponent<Image>().enabled = false;
+    }
+
+    [TargetRpc]
+    public void Rpc_WaitTurn(NetworkConnection conn)
+    {
+        //Debug.LogError(conn.identity.GetComponent<CS_Player>().name + " Clicked " + card.GetComponent<CS_Card>().CardId + ", he not owned");
+        Debug.LogError("Other Trun");
+        GameObject.Find("AllHover").GetComponent<Image>().enabled = true;
+    }
+
+    [Command]
+    public void Cmd_SwitchTurn(GameObject ender, GameObject starter)
+    {
+        Rpc_StartTurn(starter.GetComponent<NetworkIdentity>().connectionToClient);
+        Rpc_WaitTurn(ender.GetComponent<NetworkIdentity>().connectionToClient);
+    }
+
+
 }

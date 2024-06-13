@@ -11,10 +11,7 @@ public class CS_Button : NetworkBehaviour
     {
         this.GetComponent<Button>().onClick.AddListener(() =>
         {
-            
-           
-
-            CS_Player.localPlayer.GetACard();
+            CS_GameMode.localPlayer.GetComponent<CS_Player>().GetACard();
         });
     }
 
