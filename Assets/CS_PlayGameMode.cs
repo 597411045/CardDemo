@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CS_GameMode : NetworkBehaviour
+public class CS_PlayGameMode : NetworkBehaviour
 {
     [SyncVar]
     public int ClickCount;

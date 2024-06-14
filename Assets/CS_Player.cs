@@ -31,7 +31,7 @@ public class CS_Player : NetworkBehaviour
         if (!isServer)
         {
             NetworkIdentity ni = NetworkClient.connection.identity;
-            CS_GameMode.localPlayer = ni.gameObject;
+            CS_PlayGameMode.localPlayer = ni.gameObject;
         }
     }
 
@@ -69,7 +69,7 @@ public class CS_Player : NetworkBehaviour
             go.GetComponent<CS_Card>().SetCover(id);
             HoldCardAreaLeft.GetComponentInChildren<CS_HoldCardAreaSlot>().InsertACard(go);
 
-            Cmd_SwitchTurn(CS_GameMode.localPlayer, CS_GameMode.remotePlayer);
+            Cmd_SwitchTurn(CS_PlayGameMode.localPlayer, CS_PlayGameMode.remotePlayer);
         }
         else
         {
@@ -97,7 +97,7 @@ public class CS_Player : NetworkBehaviour
                 if (j is ISlotActiviy)
                 {
                     ((ISlotActiviy)j).InsertACard(go);
-                    Cmd_SwitchTurn(CS_GameMode.localPlayer, CS_GameMode.remotePlayer);
+                    Cmd_SwitchTurn(CS_PlayGameMode.localPlayer, CS_PlayGameMode.remotePlayer);
                     return;
                 }
             }
@@ -157,29 +157,29 @@ public class CS_Player : NetworkBehaviour
     [Command]
     public void Cmd_AddOne()
     {
-        GameObject.Find("GameMode").GetComponent<CS_GameMode>().ClickCount++;
+        GameObject.Find("GameMode").GetComponent<CS_PlayGameMode>().ClickCount++;
     }
 
     [Command]
     public void RegisterAClient(GameObject go)
     {
-        if (CS_GameMode.Player1 == null)
+        if (CS_PlayGameMode.Player1 == null)
         {
-            CS_GameMode.Player1 = go;
+            CS_PlayGameMode.Player1 = go;
             BroadCastNotify("Player 1 In");
 
-            BroadCastClient(1, CS_GameMode.Player1);
+            BroadCastClient(1, CS_PlayGameMode.Player1);
             return;
         }
-        if (CS_GameMode.Player2 == null)
+        if (CS_PlayGameMode.Player2 == null)
         {
-            CS_GameMode.Player2 = go;
+            CS_PlayGameMode.Player2 = go;
             BroadCastNotify("Player 2 In");
 
-            BroadCastClient(2, CS_GameMode.Player2);
-            BroadCastClient(1, CS_GameMode.Player1);
-            Rpc_StartTurn(CS_GameMode.Player1.GetComponent<NetworkIdentity>().connectionToClient);
-            Rpc_WaitTurn(CS_GameMode.Player2.GetComponent<NetworkIdentity>().connectionToClient);
+            BroadCastClient(2, CS_PlayGameMode.Player2);
+            BroadCastClient(1, CS_PlayGameMode.Player1);
+            Rpc_StartTurn(CS_PlayGameMode.Player1.GetComponent<NetworkIdentity>().connectionToClient);
+            Rpc_WaitTurn(CS_PlayGameMode.Player2.GetComponent<NetworkIdentity>().connectionToClient);
             return;
         }
     }
@@ -196,18 +196,18 @@ public class CS_Player : NetworkBehaviour
     {
         if (index == 1)
         {
-            if (CS_GameMode.Player1 == null)
+            if (CS_PlayGameMode.Player1 == null)
             {
-                CS_GameMode.remotePlayer = go;
-                CS_GameMode.Player1 = go;
+                CS_PlayGameMode.remotePlayer = go;
+                CS_PlayGameMode.Player1 = go;
             }
         }
         if (index == 2)
         {
-            if (CS_GameMode.Player2 == null)
+            if (CS_PlayGameMode.Player2 == null)
             {
-                CS_GameMode.remotePlayer = go;
-                CS_GameMode.Player2 = go;
+                CS_PlayGameMode.remotePlayer = go;
+                CS_PlayGameMode.Player2 = go;
             }
         }
     }

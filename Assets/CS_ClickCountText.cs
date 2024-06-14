@@ -26,7 +26,7 @@ public class CS_ClickCountText : MonoBehaviour
 
         if (text != null)
         {
-            text.text = GameMode.GetComponent<CS_GameMode>().ClickCount.ToString();
+            text.text = GameMode.GetComponent<CS_PlayGameMode>().ClickCount.ToString();
         }
     }
 }

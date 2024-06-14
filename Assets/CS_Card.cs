@@ -106,7 +106,7 @@ public class CS_Card : NetworkBehaviour
             {
                 if (j is ISlotActiviy)
                 {
-                    CS_GameMode.localPlayer.GetComponent<CS_Player>().MoveACard(this.gameObject, j.gameObject);
+                    CS_PlayGameMode.localPlayer.GetComponent<CS_Player>().MoveACard(this.gameObject, j.gameObject);
 
                     //((ISlotActiviy)j).InsertACard(this.gameObject);
                     return;
@@ -169,13 +169,13 @@ public class CS_Card : NetworkBehaviour
     {
         if (isOwned)
         {
-            CS_GameMode.localPlayer.GetComponent<CS_Player>().ClickOnOwned(this.gameObject);
+            CS_PlayGameMode.localPlayer.GetComponent<CS_Player>().ClickOnOwned(this.gameObject);
         }
         else
         {
-            CS_GameMode.localPlayer.GetComponent<CS_Player>().ClickOnOther(this.gameObject);
+            CS_PlayGameMode.localPlayer.GetComponent<CS_Player>().ClickOnOther(this.gameObject);
         }
 
-        CS_GameMode.localPlayer.GetComponent<CS_Player>().Cmd_AddOne();
+        CS_PlayGameMode.localPlayer.GetComponent<CS_Player>().Cmd_AddOne();
     }
 }
