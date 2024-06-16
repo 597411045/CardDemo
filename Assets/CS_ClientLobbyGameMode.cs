@@ -5,21 +5,22 @@ using MySql.Data.MySqlClient;
 using UnityEngine.UI;
 using System.Data;
 using System;
+using UnityEngine.SceneManagement;
 
-public class CS_LobbyGameMode : MonoBehaviour
+public class CS_ClientLobbyGameMode : MonoBehaviour
 {
     public GameObject Login;
     public GameObject Rooms;
     public GameObject RoomsParent;
     public GameObject LocalInfoND;
 
-    private MySqlConnection conn;
+    public MySqlConnection conn;
 
     public InputField username;
     public InputField password;
 
-    private static string guiText;
-    private GUIStyle guiStyle;
+    public static string guiText;
+    public GUIStyle guiStyle;
 
 
     // Start is called before the first frame update
@@ -34,7 +35,7 @@ public class CS_LobbyGameMode : MonoBehaviour
         builder.Database = "carddemo";
         conn = new MySqlConnection(builder.ConnectionString);
         conn.Open();
-        DebugAText("Mysql¡¨Ω”≥…π¶");
+        DebugAText("MysqlËøûÊé•ÊàêÂäü");
 
         guiStyle = new GUIStyle();
         guiStyle.fontSize = 40;
@@ -46,7 +47,6 @@ public class CS_LobbyGameMode : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
     }
 
     public void Button_Login()
@@ -56,10 +56,12 @@ public class CS_LobbyGameMode : MonoBehaviour
 
         if (str_username == "" || str_password == "")
         {
-            DebugAText("≤ªƒ‹Œ™ø’");
+            DebugAText("‰∏çËÉΩ‰∏∫Á©∫");
             return;
         }
-        string sql = "select * from tbluser where id = \"" + str_username + "\" and password = \"" + str_password + "\";";
+
+        string sql = "select * from tbluser where id = \"" + str_username + "\" and password = \"" + str_password +
+                     "\";";
         MySqlCommand cmd = new MySqlCommand(sql, conn);
         MySqlDataAdapter sda = new MySqlDataAdapter(cmd);
 
@@ -68,7 +70,7 @@ public class CS_LobbyGameMode : MonoBehaviour
         DataTable dt = ds.Tables[0];
         if (dt.Rows.Count == 1)
         {
-            DebugAText("µ«¬º≥…π¶");
+            DebugAText("ÁôªÂΩïÊàêÂäü");
             Rooms.SetActive(true);
             Login.SetActive(false);
             StartCoroutine(UpdateRoomInfoPerSeconds());
@@ -76,7 +78,7 @@ public class CS_LobbyGameMode : MonoBehaviour
         }
         else
         {
-            DebugAText("µ«¬º ß∞‹");
+            DebugAText("ÁôªÂΩïÂ§±Ë¥•");
         }
     }
 
@@ -93,12 +95,13 @@ public class CS_LobbyGameMode : MonoBehaviour
         }
         catch (Exception e)
         {
-            DebugAText("◊¢≤· ß∞‹");
+            DebugAText("Ê≥®ÂÜåÂ§±Ë¥•");
             return;
         }
+
         if (a == 1)
         {
-            DebugAText("◊¢≤·≥…π¶");
+            DebugAText("Ê≥®ÂÜåÊàêÂäü");
         }
     }
 
@@ -116,7 +119,7 @@ public class CS_LobbyGameMode : MonoBehaviour
         Debug.Log(text);
     }
 
-    IEnumerator UpdateRoomInfoPerSeconds()
+    public IEnumerator UpdateRoomInfoPerSeconds()
     {
         yield return new WaitForSeconds(2);
         string sql = "SELECT * FROM tblroom;";
@@ -147,6 +150,7 @@ public class CS_LobbyGameMode : MonoBehaviour
 
             go.GetComponent<CS_RoomUnit>().UpdateInfo(HostText, ClientText, AddressText, StatusText);
         }
+
         StartCoroutine(UpdateRoomInfoPerSeconds());
     }
 
@@ -160,7 +164,8 @@ public class CS_LobbyGameMode : MonoBehaviour
         string str_username = username.text;
         string str_password = password.text;
         int result = 0;
-        string sql = "INSERT INTO tblroom VALUES ('" + LocalInfoND.GetComponent<CS_LocalInfo>().username + "', '0', '0', '0');";
+        string sql = "INSERT INTO tblroom VALUES ('" + LocalInfoND.GetComponent<CS_LocalInfo>().username +
+                     "', '0', '0', '0');";
         MySqlCommand cmd = new MySqlCommand(sql, conn);
         try
         {
@@ -168,19 +173,21 @@ public class CS_LobbyGameMode : MonoBehaviour
         }
         catch (Exception e)
         {
-            DebugAText("¥¥Ω® ß∞‹");
+            DebugAText("ÂàõÂª∫Â§±Ë¥•");
             return;
         }
+
         if (result == 1)
         {
-            DebugAText("¥¥Ω®≥…π¶");
+            DebugAText("ÂàõÂª∫ÊàêÂäü");
         }
     }
 
     public void Button_DeleteRoom()
     {
         int result = 0;
-        string sql = "DELETE FROM `carddemo`.`tblroom` WHERE (`host_user_id` = '" + LocalInfoND.GetComponent<CS_LocalInfo>().username + "');";
+        string sql = "DELETE FROM `carddemo`.`tblroom` WHERE (`host_user_id` = '" +
+                     LocalInfoND.GetComponent<CS_LocalInfo>().username + "');";
         MySqlCommand cmd = new MySqlCommand(sql, conn);
         try
         {
@@ -188,12 +195,18 @@ public class CS_LobbyGameMode : MonoBehaviour
         }
         catch (Exception e)
         {
-            DebugAText("…æ≥˝ ß∞‹");
+            DebugAText("Âà†Èô§Â§±Ë¥•");
             return;
         }
+
         if (result == 1)
         {
-            DebugAText("…æ≥˝≥…π¶");
+            DebugAText("Âà†Èô§ÊàêÂäü");
         }
+    }
+    
+    public void Button_Server()
+    {
+        SceneManager.LoadScene("Scenes/ServerPlay");
     }
 }
