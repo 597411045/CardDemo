@@ -17,7 +17,13 @@ public class CS_ClientPlayGameMode : NetworkBehaviour
     public static GameObject remotePlayer;
     public static GameObject GameMode;
 
+
     // Start is called before the first frame update
+    private void Start()
+    {
+        
+    }
+
 
     private void OnEnable()
     {

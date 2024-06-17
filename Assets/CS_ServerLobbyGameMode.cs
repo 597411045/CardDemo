@@ -5,10 +5,14 @@ using MySql.Data.MySqlClient;
 using UnityEngine.UI;
 using System.Data;
 using System;
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
+using System.IO;
 
 public class CS_ServerLobbyGameMode : MonoBehaviour
 {
     private CS_ClientLobbyGameMode _clientLobbyGameMode;
+
 
 
     // Start is called before the first frame update
@@ -18,6 +22,8 @@ public class CS_ServerLobbyGameMode : MonoBehaviour
         _clientLobbyGameMode = this.GetComponent<CS_ClientLobbyGameMode>();
         _clientLobbyGameMode.Rooms.SetActive(true);
         _clientLobbyGameMode.Login.SetActive(false);
+
+
         StartCoroutine(ProcessMainServerFunctionPerSec());
     }
 
@@ -30,11 +36,7 @@ public class CS_ServerLobbyGameMode : MonoBehaviour
     {
         yield return new WaitForSeconds(1);
         string sql = "SELECT * FROM tblroom;";
-        MySqlCommand cmd = new MySqlCommand(sql, _clientLobbyGameMode.conn);
-        MySqlDataAdapter sda = new MySqlDataAdapter(cmd);
-
-        DataSet ds = new DataSet();
-        sda.Fill(ds, "Table1");
+        DataSet ds = LocalFunc.GetMysqlQuery(sql);
         DataTable dt = ds.Tables[0];
 
         for (int i = _clientLobbyGameMode.RoomsParent.transform.childCount - 1; i >= 0; i--)
@@ -55,9 +57,27 @@ public class CS_ServerLobbyGameMode : MonoBehaviour
             string ClientText = dt.Rows[i][2].ToString();
             string StatusText = dt.Rows[i][3].ToString();
 
+            if (StatusText == "0")
+            {
+                string sql3 = "UPDATE `carddemo`.`tblroom` SET `status` = '1' WHERE (`host_user_id` = '" + HostText + "');";
+                int result = LocalFunc.ExecuteMysqlQuery(sql3);
+                if (result == 1)
+                {
+                    LocalFunc.StartExe("D:/CardDemo/Build/CardDemo1.exe");
+                }
+
+                //string sql2 = "SELECT * FROM tblprocess;";
+                //DataSet ds2 = LocalFunc.GetMysqlQuery(sql2);
+                //DataTable dt2 = ds2.Tables[0];
+
+
+            }
+
             go.GetComponent<CS_RoomUnit>().UpdateInfo(HostText, ClientText, AddressText, StatusText);
         }
 
         StartCoroutine(ProcessMainServerFunctionPerSec());
     }
+
+
 }

@@ -10,12 +10,19 @@ public class CS_ServerPlayGameMode : MonoBehaviour
     public KcpTransport kcpTransport;
     public NetworkManager networkManager;
     public NetworkManagerHUD networkManagerHUD;
+    private GameObject LocalInfoND;
 
     // Start is called before the first frame update
     void Start()
     {
-        _clientPlayGameMode = this.GetComponent<CS_ClientPlayGameMode>();
-        networkManager.StartServer();
+        LocalInfoND = GameObject.Find("LocalInfoND");
+        DontDestroyOnLoad(LocalInfoND);
+
+        if (LocalInfoND.GetComponent<CS_LocalInfo>().isServer)
+        {
+            _clientPlayGameMode = this.GetComponent<CS_ClientPlayGameMode>();
+            networkManager.StartServer();
+        }
     }
 
     // Update is called once per frame

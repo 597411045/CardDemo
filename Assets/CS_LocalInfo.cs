@@ -5,6 +5,7 @@ using UnityEngine;
 public class CS_LocalInfo : MonoBehaviour
 {
     public string username = "Not Login";
+    public bool isServer;
 
     private GUIStyle guiStyle;
     void Start()
