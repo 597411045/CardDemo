@@ -6,6 +6,8 @@ using UnityEngine.UI;
 using System.Data;
 using System;
 using UnityEngine.SceneManagement;
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
 
 public class CS_ClientLobbyGameMode : MonoBehaviour
 {
@@ -23,7 +25,7 @@ public class CS_ClientLobbyGameMode : MonoBehaviour
 
 
     // Start is called before the first frame update
-    void Start()
+    IEnumerator Start()
     {
         Rooms.SetActive(false);
 
@@ -35,6 +37,15 @@ public class CS_ClientLobbyGameMode : MonoBehaviour
 
         LocalInfoND = GameObject.Find("LocalInfoND");
         DontDestroyOnLoad(LocalInfoND);
+
+        yield return new WaitForSeconds(1);
+
+        int processid = Process.GetCurrentProcess().Id;
+        if (LocalFunc.ExecuteMysqlQuery("SELECT * FROM carddemo.tblprocess where process_id = '" + processid + "';") == 1)
+        {
+            LocalInfoND.GetComponent<CS_LocalInfo>().isServer = true;
+            SceneManager.LoadScene("Scenes/OnlyPlay");
+        }
     }
 
     // Update is called once per frame

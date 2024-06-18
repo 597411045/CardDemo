@@ -35,8 +35,7 @@ public class CS_ServerLobbyGameMode : MonoBehaviour
     public IEnumerator ProcessMainServerFunctionPerSec()
     {
         yield return new WaitForSeconds(1);
-        string sql = "SELECT * FROM tblroom;";
-        DataSet ds = LocalFunc.GetMysqlQuery(sql);
+        DataSet ds = LocalFunc.GetMysqlQuery("SELECT * FROM tblroom;");
         DataTable dt = ds.Tables[0];
 
         for (int i = _clientLobbyGameMode.RoomsParent.transform.childCount - 1; i >= 0; i--)
@@ -59,11 +58,30 @@ public class CS_ServerLobbyGameMode : MonoBehaviour
 
             if (StatusText == "0")
             {
-                string sql3 = "UPDATE `carddemo`.`tblroom` SET `status` = '1' WHERE (`host_user_id` = '" + HostText + "');";
-                int result = LocalFunc.ExecuteMysqlQuery(sql3);
-                if (result == 1)
+                if (LocalFunc.ExecuteMysqlQuery("UPDATE `carddemo`.`tblroom` SET `status` = '1' WHERE (`host_user_id` = '" + HostText + "');") == 1)
                 {
-                    LocalFunc.StartExe("D:/CardDemo/Build/CardDemo1.exe");
+                    bool flag = true;
+                    int port = 7000;
+
+                    while (flag)
+                    {
+                        string tmpStr = LocalFunc.UseCmd("netstat -ano|findstr " + port + "&exit");
+                        if (tmpStr.Contains("UPD") || tmpStr.Contains("TCP"))
+                        {
+                            port++;
+                        }
+                        else
+                        {
+                            flag = false;
+                        }
+                    }
+                    int pid = LocalFunc.StartExe("C:/Build/CardDemo1.exe");
+
+                    if (LocalFunc.ExecuteMysqlQuery("INSERT INTO `carddemo`.`tblprocess` (`process_id`, `port`) VALUES ('" + pid + "', '" + port + "');") == 1)
+                    {
+
+                    }
+
                 }
 
                 //string sql2 = "SELECT * FROM tblprocess;";

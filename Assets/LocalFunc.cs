@@ -89,14 +89,15 @@ public class LocalFunc
 
     public static int StartExe(string path)
     {
-        //Process p;
-        //ProcessStartInfo psi;
-        //p = new Process();
-        //psi = new ProcessStartInfo(path);
-        //p.Start();
+        Process p;
+        ProcessStartInfo psi;
+        p = new Process();
+        psi = new ProcessStartInfo(path);
+        p.StartInfo = psi;
+
+        p.Start();
 
 
-        //return p.Id;
-        return 0;
+        return p.Id;
     }
 }
