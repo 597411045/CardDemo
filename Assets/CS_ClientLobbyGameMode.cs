@@ -27,6 +27,7 @@ public class CS_ClientLobbyGameMode : MonoBehaviour
     // Start is called before the first frame update
     IEnumerator Start()
     {
+        DebugAText("起点");
         Rooms.SetActive(false);
 
 
@@ -38,13 +39,23 @@ public class CS_ClientLobbyGameMode : MonoBehaviour
         LocalInfoND = GameObject.Find("LocalInfoND");
         DontDestroyOnLoad(LocalInfoND);
 
+        DebugAText("判断Process id");
         yield return new WaitForSeconds(1);
 
+
         int processid = Process.GetCurrentProcess().Id;
-        if (LocalFunc.ExecuteMysqlQuery("SELECT * FROM carddemo.tblprocess where process_id = '" + processid + "';") == 1)
+        DebugAText("SELECT * FROM carddemo.tblprocess where process_id = '" + processid + "';");
+
+        if (LocalFunc.GetMysqlQuery("SELECT * FROM carddemo.tblprocess where process_id = '" + processid + "';").Tables[0].Rows.Count == 1)
         {
-            LocalInfoND.GetComponent<CS_LocalInfo>().isServer = true;
+            DebugAText("判断Process id成功，是自动Server");
+
+            CS_LocalInfo.isServer = true;
             SceneManager.LoadScene("Scenes/OnlyPlay");
+        }
+        else
+        {
+            DebugAText("判断Process id失败，是手动Client");
         }
     }
 
@@ -75,7 +86,7 @@ public class CS_ClientLobbyGameMode : MonoBehaviour
             Rooms.SetActive(true);
             Login.SetActive(false);
             StartCoroutine(UpdateRoomInfoPerSeconds());
-            LocalInfoND.GetComponent<CS_LocalInfo>().username = dt.Rows[0][0].ToString();
+            CS_LocalInfo.username = dt.Rows[0][0].ToString();
         }
         else
         {
@@ -112,13 +123,13 @@ public class CS_ClientLobbyGameMode : MonoBehaviour
     public static void DebugAText(string text)
     {
         guiText = text;
-        Debug.Log(text);
+        Debug.LogError(text);
     }
 
     public IEnumerator UpdateRoomInfoPerSeconds()
     {
         yield return new WaitForSeconds(2);
-        string sql = "SELECT * FROM tblroom;";
+        string sql = "select * FROM `carddemo`.`tblroom` WHERE (`status` = 2);";
 
 
         DataSet ds = LocalFunc.GetMysqlQuery(sql);
@@ -138,9 +149,9 @@ public class CS_ClientLobbyGameMode : MonoBehaviour
             go.transform.localScale = Vector3.one;
 
             string HostText = dt.Rows[i][0].ToString();
-            string AddressText = dt.Rows[i][1].ToString();
+            string AddressText = dt.Rows[i][3].ToString();
             string ClientText = dt.Rows[i][2].ToString();
-            string StatusText = dt.Rows[i][3].ToString();
+            string StatusText = dt.Rows[i][1].ToString();
 
             go.GetComponent<CS_RoomUnit>().UpdateInfo(HostText, ClientText, AddressText, StatusText);
         }
@@ -154,7 +165,7 @@ public class CS_ClientLobbyGameMode : MonoBehaviour
     {
         string str_username = username.text;
         string str_password = password.text;
-        string sql = "INSERT INTO tblroom VALUES ('" + LocalInfoND.GetComponent<CS_LocalInfo>().username +
+        string sql = "INSERT INTO tblroom VALUES ('" + CS_LocalInfo.username +
                      "', '0', '0', '0');";
 
         int result = LocalFunc.ExecuteMysqlQuery(sql);
@@ -172,7 +183,7 @@ public class CS_ClientLobbyGameMode : MonoBehaviour
     public void Button_DeleteRoom()
     {
         string sql = "DELETE FROM `carddemo`.`tblroom` WHERE (`host_user_id` = '" +
-                     LocalInfoND.GetComponent<CS_LocalInfo>().username + "');";
+                     CS_LocalInfo.username + "');";
 
         int result = LocalFunc.ExecuteMysqlQuery(sql);
 
@@ -188,13 +199,13 @@ public class CS_ClientLobbyGameMode : MonoBehaviour
 
     public void Button_Server()
     {
-        LocalInfoND.GetComponent<CS_LocalInfo>().isServer = true;
-        SceneManager.LoadScene("Scenes/OnlyPlay");
+        CS_LocalInfo.isServer = true;
+        SceneManager.LoadScene("Scenes/ServerLobby");
     }
 
     public void Button_Client()
     {
-        LocalInfoND.GetComponent<CS_LocalInfo>().isServer = false;
+        CS_LocalInfo.isServer = false;
         SceneManager.LoadScene("Scenes/OnlyPlay");
     }
 }

@@ -12,23 +12,33 @@ public class CS_ServerPlayGameMode : MonoBehaviour
     public KcpTransport kcpTransport;
     public NetworkManager networkManager;
     public NetworkManagerHUD networkManagerHUD;
-    private GameObject LocalInfoND;
 
     // Start is called before the first frame update
     void Start()
     {
-        LocalInfoND = GameObject.Find("LocalInfoND");
-        DontDestroyOnLoad(LocalInfoND);
-
-        if (LocalInfoND.GetComponent<CS_LocalInfo>().isServer)
+        if (CS_LocalInfo.isServer)
         {
             _clientPlayGameMode = this.GetComponent<CS_ClientPlayGameMode>();
 
             DataSet ds = LocalFunc.GetMysqlQuery("SELECT * FROM carddemo.tblprocess where process_id = '" + Process.GetCurrentProcess().Id.ToString() + "';");
             DataTable dt = ds.Tables[0];
+            if (dt.Rows.Count == 0)
+            {
 
-            kcpTransport.Port = ushort.Parse(dt.Rows[0][1].ToString());
-            networkManager.StartServer();
+            }
+            else
+            {
+                kcpTransport.Port = ushort.Parse(dt.Rows[0][1].ToString());
+                networkManager.StartServer();
+                LocalFunc.ExecuteMysqlQuery("UPDATE `carddemo`.`tblroom` SET `status` = '2' WHERE (`host_user_id` = '" + dt.Rows[0][2].ToString() + "');");
+            }
+        }
+        if (CS_LocalInfo.isClient)
+        {
+            kcpTransport.Port = ushort.Parse(CS_LocalInfo.TargetPort);
+            networkManager.networkAddress = CS_LocalInfo.TargetIP;
+            networkManager.StartClient();
+
         }
     }
 

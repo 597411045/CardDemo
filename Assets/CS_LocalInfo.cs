@@ -4,8 +4,11 @@ using UnityEngine;
 
 public class CS_LocalInfo : MonoBehaviour
 {
-    public string username = "Not Login";
-    public bool isServer;
+    public static string username = "Not Login";
+    public static bool isServer;
+    public static bool isClient;
+    public static string TargetIP = "101.132.190.13";
+    public static string TargetPort;
 
     private GUIStyle guiStyle;
     void Start()

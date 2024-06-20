@@ -77,7 +77,7 @@ public class CS_ServerLobbyGameMode : MonoBehaviour
                     }
                     int pid = LocalFunc.StartExe("C:/Build/CardDemo1.exe");
 
-                    if (LocalFunc.ExecuteMysqlQuery("INSERT INTO `carddemo`.`tblprocess` (`process_id`, `port`) VALUES ('" + pid + "', '" + port + "');") == 1)
+                    if (LocalFunc.ExecuteMysqlQuery("INSERT INTO `carddemo`.`tblprocess` (`process_id`, `port`, `host_name`) VALUES ('" + pid + "', '" + port + "', '" + HostText + "');") == 1)
                     {
 
                     }

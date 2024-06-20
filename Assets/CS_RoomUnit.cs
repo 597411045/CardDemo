@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class CS_RoomUnit : MonoBehaviour
@@ -28,5 +30,18 @@ public class CS_RoomUnit : MonoBehaviour
         ClientText.text = s2;
         StatusText.text = s3;
         AddressText.text = s4;
+    }
+
+    public void Button_JoinRoom()
+    {
+        string sql = "select * FROM `carddemo`.`tblprocess` WHERE (`host_name` = \"" + HostText.text + "\");";
+
+
+        DataSet ds = LocalFunc.GetMysqlQuery(sql);
+        DataTable dt = ds.Tables[0];
+        CS_LocalInfo.isClient = true;
+        CS_LocalInfo.TargetPort = dt.Rows[0][1].ToString();
+
+        SceneManager.LoadScene("Scenes/OnlyPlay");
     }
 }

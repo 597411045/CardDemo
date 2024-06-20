@@ -21,18 +21,18 @@ public class CS_ClientPlayGameMode : NetworkBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        
+
     }
 
 
     private void OnEnable()
     {
-        Application.logMessageReceived += HandleLog;
+        //Application.logMessageReceived += HandleLog;
     }
 
     private void OnDisable()
     {
-        Application.logMessageReceived += HandleLog;
+        //Application.logMessageReceived += HandleLog;
     }
 
     private void HandleLog(string s1, string s2, LogType l1)
